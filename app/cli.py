@@ -74,6 +74,7 @@ def modify_products():
         Select an option: """
     )
     option: str = input(option_str)
+    # TODO: Add the logic to modify the product
     match option:
         case "1":
             ...
