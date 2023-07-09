@@ -1,4 +1,3 @@
-from app.schemas import Product
-
+from schemas import Product
 
 db: list[Product] = []
