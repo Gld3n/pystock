@@ -1,4 +1,5 @@
 from os import system, name as os_name
+from re import match
 
 from database import db
 
@@ -13,11 +14,12 @@ def wait() -> None:
 def set_name() -> str:
     """Set the name of the product sanitizing the input."""
 
-    name: str = input("> Name: ")
-    if not name.isalpha():
-        print("[Invalid name. Try again.]")
-        return set_name()
-    return name
+    while True:
+        name: str = input("> Name: ").strip()
+        if match(r"^[a-zA-Z ]+$", name):
+            return name
+        else:
+            print("[Invalid name. Try again.]")
 
 
 def set_price() -> float:

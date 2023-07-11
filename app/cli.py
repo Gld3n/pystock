@@ -60,37 +60,32 @@ def modify_products():
             return sanitize_prod()
 
     current_product: Product = sanitize_prod()
-    print(current_product)
     wait()
 
     print("=== Modify Product ==================")
     print("* Select a field to modify:", end="")
 
     option_str: str = dedent(
-        """
-        1. Name
-        2. Price
-        3. Discount
-        4. Quantity
+        f"""
+        1. Name (Current: {current_product.name})
+        2. Price (Current: {current_product.price}$ | BsS.{in_BsS(current_product.price, exchange_rate)})
+        3. Discount (Current: {current_product.discount}%)
+        4. Quantity (Current: {current_product.quantity} units)
         5. <= Back
         Select an option: """
     )
     option: str = input(option_str)
     match option:
         case "1":
-            print(f"Current name: {current_product.name}")
             new_name: str = set_name()
             current_product.name = new_name
         case "2":
-            print(f"Current price: {current_product.price}")
             new_price: float = set_price()
             current_product.price = new_price
         case "3":
-            print(f"Current discount: {current_product.discount}")
             new_discount: int = set_discount()
             current_product.discount = new_discount
         case "4":
-            print(f"Current quantity: {current_product.quantity}")
             new_quantity: int = set_quantity()
             current_product.quantity = new_quantity
         case "5":
