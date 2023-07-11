@@ -45,20 +45,21 @@ def modify_products():
     for prod in db:
         print(f"- Index [{db.index(prod)}] - Name: {prod.name}")
 
-    def sanitize() -> int:
+    def sanitize_prod() -> Product:
         try:
             index: int = int(input("Option: "))
             if index < 0:
                 raise IndexError
-            return index
+            product: Product = db[index]
+            return product
         except IndexError:
             print("[Invalid index.]")
-            sanitize()
+            return sanitize_prod()
         except ValueError:
             print("[Invalid value.]")
-            sanitize()
+            return sanitize_prod()
 
-    current_product: Product = db[sanitize()]
+    current_product: Product = sanitize_prod()
     print(current_product)
     wait()
 
@@ -71,7 +72,7 @@ def modify_products():
         2. Price
         3. Discount
         4. Quantity
-        5. Back
+        5. <= Back
         Select an option: """
     )
     option: str = input(option_str)
@@ -137,7 +138,7 @@ def show_statistics():
         f" - Gross total in stock: {(total := sum([(product.price * product.quantity) for product in db])):.2f}$ | BsS.{in_BsS(total, exchange_rate)}"
     )
     print(
-        f" - Net total in stock: {(net := calculate_net_total(iva=iva)):.2f}$ | BsS.{in_BsS(net, exchange_rate)}"
+        f" - Net total in stock: {(net := calculate_net_total(iva)):.2f}$ | BsS.{in_BsS(net, exchange_rate)}"
     )
     print(
         f" - Cheapest product: {cheapest.name} ({(ch := cheapest.price):.2f}$) | BsS.{in_BsS(ch, exchange_rate)}"
@@ -169,7 +170,9 @@ def modify_settings():
     match option:
         case "1":
             print(f"Current IVA: ({iva*100:.0f}%)")
-            new_iva: float = float(input("New IVA (as decimal): "))
+            new_iva: float = float(input("New IVA: "))
+            while new_iva < 0 or new_iva > 100:
+                new_iva = float(input("[Invalid IVA. Try again.]"))
             iva = new_iva
         case "2":
             print(f"Current exchange rate: (BsS.{exchange_rate})")

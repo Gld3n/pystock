@@ -16,7 +16,7 @@ def set_name() -> str:
     name: str = input("> Name: ")
     if not name.isalpha():
         print("[Invalid name. Try again.]")
-        set_name()
+        return set_name()
     return name
 
 
@@ -70,13 +70,10 @@ def set_quantity() -> int:
 def calculate_net_total(iva: float) -> float:
     """Calculate the net total of the products."""
 
-    net = sum(
-        [
-            product.price
-            - ((product.price * product.discount / 100) * product.quantity)
-            for product in db
-        ]
-    ) * (1 + iva)
+    discounted = sum(
+        [(prod.price * (1 - (prod.discount / 100))) * prod.quantity for prod in db]
+    )
+    net = discounted + (discounted * iva)
     return net
 
 
