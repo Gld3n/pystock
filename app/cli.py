@@ -1,3 +1,12 @@
+"""
+TODO: Add more intensive validation for pending inputs.
+TODO: Make IVA unmodifiable.
+TODO: Base exchange rate on a real-time API.
+TODO: Add database support.
+TODO: Use FastAPI to create a REST API.
+TODO: Modify the CLI to use the REST API.
+"""
+
 from os import system, name as os_name
 from textwrap import dedent
 
