@@ -45,12 +45,12 @@ def modify_products():
     for prod in db:
         print(f"- Index [{db.index(prod)}] - Name: {prod.name}")
 
-    def sanitize():
+    def sanitize() -> int:
         try:
             index: int = int(input("Option: "))
             if index < 0:
                 raise IndexError
-            product: Product = db[index]
+            return index
         except IndexError:
             print("[Invalid index.]")
             sanitize()
@@ -58,7 +58,8 @@ def modify_products():
             print("[Invalid value.]")
             sanitize()
 
-    sanitize()
+    current_product: Product = db[sanitize()]
+    print(current_product)
     wait()
 
     print("=== Modify Product ==================")
@@ -74,20 +75,27 @@ def modify_products():
         Select an option: """
     )
     option: str = input(option_str)
-    # TODO: Add the logic to modify the product
     match option:
         case "1":
-            ...
+            print(f"Current name: {current_product.name}")
+            new_name: str = set_name()
+            current_product.name = new_name
         case "2":
-            ...
+            print(f"Current price: {current_product.price}")
+            new_price: float = set_price()
+            current_product.price = new_price
         case "3":
-            ...
+            print(f"Current discount: {current_product.discount}")
+            new_discount: int = set_discount()
+            current_product.discount = new_discount
         case "4":
-            ...
+            print(f"Current quantity: {current_product.quantity}")
+            new_quantity: int = set_quantity()
+            current_product.quantity = new_quantity
         case "5":
-            ...
+            print("[Exiting...]")
         case _:
-            ...
+            print("[Invalid option.]")
 
 
 def list_products():
@@ -167,6 +175,10 @@ def modify_settings():
             print(f"Current exchange rate: (BsS.{exchange_rate})")
             new_er: float = float(input("New exchange rate: "))
             exchange_rate = new_er
+        case "3":
+            print("[Exiting...]")
+        case _:
+            print("[Invalid option.]")
 
 
 def main():
