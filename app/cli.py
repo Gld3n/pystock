@@ -6,17 +6,17 @@ TODO: Add database support.
 TODO: Use FastAPI to create a REST API.
 TODO: Modify the CLI to use the REST API.
 """
-
-from os import system, name as os_name
 from textwrap import dedent
 
 from utils import (
     calculate_net_total,
-    in_BsS,
+    sanitize_selection,
     set_discount,
-    set_name,
-    set_price,
     set_quantity,
+    clear_scr,
+    set_price,
+    set_name,
+    in_BsS,
 )
 from schemas import Product
 from database import db
@@ -43,32 +43,18 @@ def add_products() -> None:
     db.append(Product(**product))
 
 
-def modify_products():
+def modify_products() -> None:
     print("=== Modify Product ==================")
 
     if len(db) == 0:
-        print("No products found")
+        print("[No products found.]")
         return
 
     print("* Select a product to modify:")
-    for prod in db:
-        print(f"- Index [{db.index(prod)}] - Name: {prod.name}")
+    for idx, prod in enumerate(db):
+        print(f"- Index [{idx}] - Name: {prod.name}")
 
-    def sanitize_prod() -> Product:
-        try:
-            index: int = int(input("Option: "))
-            if index < 0:
-                raise IndexError
-            product: Product = db[index]
-            return product
-        except IndexError:
-            print("[Invalid index.]")
-            return sanitize_prod()
-        except ValueError:
-            print("[Invalid value.]")
-            return sanitize_prod()
-
-    current_product: Product = sanitize_prod()
+    current_product: Product = sanitize_selection()
     wait()
 
     print("=== Modify Product ==================")
@@ -103,27 +89,27 @@ def modify_products():
             print("[Invalid option.]")
 
 
-def list_products():
+def list_products() -> None:
     print("=== List Products ===================")
 
     if len(db) == 0:
         print("[No products found.]")
         return
 
-    for product in db:
-        price = product.price
-        price_with_discount = price - (price * product.discount / 100)
-        print(f"Index [{db.index(product)}]")
-        print(f" - Name: {product.name}")
+    for idx, prod in enumerate(db):
+        price = prod.price
+        price_with_discount = price - (price * prod.discount / 100)
+        print(f"Index [{idx}]")
+        print(f" - Name: {prod.name}")
         print(f" - Price: {price:.2f}$ | BsS.{in_BsS(price, exchange_rate)}")
         print(
-            f" - Price with discount ({product.discount}%): {( pwd := price_with_discount):.2f}$ | BsS.{in_BsS(pwd, exchange_rate)}"
+            f" - Price with discount ({prod.discount}%): {( pwd := price_with_discount):.2f}$ | BsS.{in_BsS(pwd, exchange_rate)}"
         )
-        print(f" - Quantity: {product.quantity} units")
+        print(f" - Quantity: {prod.quantity} units")
         print("------------------------------------")
 
 
-def show_statistics():
+def show_statistics() -> None:
     print("=== Statistics ======================")
     if len(db) == 0:
         print("[No products found.]")
@@ -158,7 +144,35 @@ def show_statistics():
     )
 
 
-def modify_settings():
+def delete_product() -> None:
+    print("=== Delete Product ==================")
+
+    if len(db) < 1:
+        print("[No products found.]")
+        return
+
+    for idx, prod in enumerate(db):
+        print(f"Index [{idx}] - {prod.name.title()}")
+
+    product: Product = sanitize_selection()
+
+    slc: str = input(
+        f"Are you sure you want to delete the selected product?\n - {product.name} [y/n]: "
+    )
+    while True:
+        match slc:
+            case "y":
+                db.remove(product)
+                print("[Product removed successfully.]")
+                break
+            case "n":
+                print("[Exiting...]")
+                break
+            case _:
+                print("[Invalid option. Try again]: ")
+
+
+def modify_settings() -> None:
     global iva, exchange_rate
 
     print("=== Settings ========================", end="")
@@ -189,7 +203,7 @@ def modify_settings():
 
 
 def main():
-    system("cls" if os_name == "nt" else "clear")
+    clear_scr()
     flag: bool = True
     option_str: str = dedent(
         """
@@ -197,15 +211,16 @@ def main():
         2. Modify product
         3. List products
         4. Show statistics
-        5. Settings
-        6. Exit
+        5. Delete product
+        6. Settings
+        7. Exit
         Select an option: """
     )
 
     while flag:
         print("=== Main Menu =======================", end="")
         option: str = input(option_str)
-        system("cls" if os_name == "nt" else "clear")
+        clear_scr()
         match option:
             case "1":
                 add_products()
@@ -220,9 +235,12 @@ def main():
                 show_statistics()
                 wait()
             case "5":
-                modify_settings()
+                delete_product()
                 wait()
             case "6":
+                modify_settings()
+                wait()
+            case "7":
                 print("Bye!")
                 flag = False
             case _:

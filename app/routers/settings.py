@@ -1,5 +1,28 @@
 from fastapi import APIRouter
 
+
+class Settings:
+    def __init__(self) -> None:
+        self._iva = 0.16
+        self._exchange_rate = 28.02
+
+    @property
+    def iva(self) -> float:
+        return self._iva
+
+    @property
+    def exchange_rate(self) -> float:
+        print("Getting exchange rate")
+
+        # TODO: Consume API to get exchange rate
+
+        return self._exchange_rate
+
+    @exchange_rate.setter
+    def exchange_rate(self, new_exchange_rate: float) -> None:
+        print("Setting exchange rate")
+
+
 router = APIRouter(prefix="/settings", tags=["Settings"])
 IVA: float = 0.16  # Taxes (16%)
 EXCHANGE_RATE: float = 28.02  # USD 1.00 = BsS 28.02

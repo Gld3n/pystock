@@ -2,6 +2,7 @@ from os import system, name as os_name
 from re import match
 
 from database import db
+from schemas import Product
 
 
 def wait() -> None:
@@ -9,6 +10,26 @@ def wait() -> None:
 
     input("\n[Press enter to continue...]")
     system("cls" if os_name == "nt" else "clear")
+
+
+def clear_scr():
+    system("cls" if os_name == "nt" else "clear")
+
+
+def sanitize_selection() -> Product:
+    try:
+        index: int = int(input("Option: "))
+        if index < 0:
+            raise IndexError
+
+        product: Product = db[index]
+        return product
+    except IndexError:
+        print("[Invalid index.]")
+        return sanitize_selection()
+    except ValueError:
+        print("[Invalid value.]")
+        return sanitize_selection()
 
 
 def set_name() -> str:
