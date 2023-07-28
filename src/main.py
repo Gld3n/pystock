@@ -2,25 +2,12 @@
 TODO: Add more intensive validation for pending inputs.
 TODO: Make IVA unmodifiable.
 TODO: Base exchange rate on a real-time API.
-TODO: Add database support.
-TODO: Use FastAPI to create a REST API.
-TODO: Modify the CLI to use the REST API.
 """
 from textwrap import dedent
 
-from utils import (
-    calculate_net_total,
-    sanitize_selection,
-    set_discount,
-    set_quantity,
-    clear_scr,
-    set_price,
-    set_name,
-    in_BsS,
-)
-from schemas import Product
+from src.schemas import Product
 from database import db
-from utils import wait
+import utils
 
 iva: float = 0.16  # Taxes (16%)
 exchange_rate: float = 28.02  # USD 1.00 = BsS 28.02
@@ -30,10 +17,10 @@ def add_products() -> None:
     print("=== Add Product =====================")
     print("Fill in the following information:")
 
-    name: str = set_name()
-    price: float = set_price()
-    discount: int = set_discount()
-    quantity: int = set_quantity()
+    name: str = utils.set_name()
+    price: float = utils.set_price()
+    discount: int = utils.set_discount()
+    quantity: int = utils.set_quantity()
     product: dict = {
         "name": name,
         "price": price,
@@ -47,15 +34,15 @@ def modify_products() -> None:
     print("=== Modify Product ==================")
 
     if len(db) == 0:
-        print("[No products found.]")
+        print("[No products found]")
         return
 
     print("* Select a product to modify:")
     for idx, prod in enumerate(db):
         print(f"- Index [{idx}] - Name: {prod.name}")
 
-    current_product: Product = sanitize_selection()
-    wait()
+    current_product: Product = utils.sanitize_selection()
+    utils.wait()
 
     print("=== Modify Product ==================")
     print("* Select a field to modify:", end="")
@@ -63,7 +50,7 @@ def modify_products() -> None:
     option_str: str = dedent(
         f"""
         1. Name (Current: {current_product.name})
-        2. Price (Current: {current_product.price}$ | BsS.{in_BsS(current_product.price, exchange_rate)})
+        2. Price (Current: {current_product.price}$ | BsS.{utils.in_BsS(current_product.price, exchange_rate)})
         3. Discount (Current: {current_product.discount}%)
         4. Quantity (Current: {current_product.quantity} units)
         5. <= Back
@@ -72,28 +59,28 @@ def modify_products() -> None:
     option: str = input(option_str)
     match option:
         case "1":
-            new_name: str = set_name()
+            new_name: str = utils.set_name()
             current_product.name = new_name
         case "2":
-            new_price: float = set_price()
+            new_price: float = utils.set_price()
             current_product.price = new_price
         case "3":
-            new_discount: int = set_discount()
+            new_discount: int = utils.set_discount()
             current_product.discount = new_discount
         case "4":
-            new_quantity: int = set_quantity()
+            new_quantity: int = utils.set_quantity()
             current_product.quantity = new_quantity
         case "5":
             print("[Exiting...]")
         case _:
-            print("[Invalid option.]")
+            print("[Invalid option]")
 
 
 def list_products() -> None:
     print("=== List Products ===================")
 
     if len(db) == 0:
-        print("[No products found.]")
+        print("[No products found]")
         return
 
     for idx, prod in enumerate(db):
@@ -101,9 +88,9 @@ def list_products() -> None:
         price_with_discount = price - (price * prod.discount / 100)
         print(f"Index [{idx}]")
         print(f" - Name: {prod.name}")
-        print(f" - Price: {price:.2f}$ | BsS.{in_BsS(price, exchange_rate)}")
+        print(f" - Price: {price:.2f}$ | BsS.{utils.in_BsS(price, exchange_rate)}")
         print(
-            f" - Price with discount ({prod.discount}%): {( pwd := price_with_discount):.2f}$ | BsS.{in_BsS(pwd, exchange_rate)}"
+            f" - Price with discount ({prod.discount}%): {( pwd := price_with_discount):.2f}$ | BsS.{utils.in_BsS(pwd, exchange_rate)}"
         )
         print(f" - Quantity: {prod.quantity} units")
         print("------------------------------------")
@@ -112,7 +99,7 @@ def list_products() -> None:
 def show_statistics() -> None:
     print("=== Statistics ======================")
     if len(db) == 0:
-        print("[No products found.]")
+        print("[No products found]")
         return
 
     cheapest: Product = min(db, key=lambda product: product.price)
@@ -125,16 +112,16 @@ def show_statistics() -> None:
     print(f" - Total products: {len(db)}")
     print(f" - Products at discount: {len(discounted_products)}")
     print(
-        f" - Gross total in stock: {(total := sum([(product.price * product.quantity) for product in db])):.2f}$ | BsS.{in_BsS(total, exchange_rate)}"
+        f" - Gross total in stock: {(total := sum([(product.price * product.quantity) for product in db])):.2f}$ | BsS.{utils.in_BsS(total, exchange_rate)}"
     )
     print(
-        f" - Net total in stock: {(net := calculate_net_total(iva)):.2f}$ | BsS.{in_BsS(net, exchange_rate)}"
+        f" - Net total in stock: {(net := utils.calculate_net_total(iva)):.2f}$ | BsS.{utils.in_BsS(net, exchange_rate)}"
     )
     print(
-        f" - Cheapest product: {cheapest.name} ({(ch := cheapest.price):.2f}$) | BsS.{in_BsS(ch, exchange_rate)}"
+        f" - Cheapest product: {cheapest.name} ({(ch := cheapest.price):.2f}$) | BsS.{utils.in_BsS(ch, exchange_rate)}"
     )
     print(
-        f" - Most expensive product: {most_expensive.name} ({(me := most_expensive.price):.2f}$) | BsS.{in_BsS(me, exchange_rate)}"
+        f" - Most expensive product: {most_expensive.name} ({(me := most_expensive.price):.2f}$) | BsS.{utils.in_BsS(me, exchange_rate)}"
     )
     print(
         f" - Largest quantity: {largest_quantity.name} ({largest_quantity.quantity} units)"
@@ -148,13 +135,13 @@ def delete_product() -> None:
     print("=== Delete Product ==================")
 
     if len(db) < 1:
-        print("[No products found.]")
+        print("[No products found]")
         return
 
     for idx, prod in enumerate(db):
         print(f"Index [{idx}] - {prod.name.title()}")
 
-    product: Product = sanitize_selection()
+    product: Product = utils.sanitize_product_selection()
 
     slc: str = input(
         f"Are you sure you want to delete the selected product?\n - {product.name} [y/n]: "
@@ -163,7 +150,7 @@ def delete_product() -> None:
         match slc:
             case "y":
                 db.remove(product)
-                print("[Product removed successfully.]")
+                print("[Product removed successfully]")
                 break
             case "n":
                 print("[Exiting...]")
@@ -190,7 +177,7 @@ def modify_settings() -> None:
             print(f"Current IVA: ({iva*100:.0f}%)")
             new_iva: float = float(input("New IVA: "))
             while new_iva < 0 or new_iva > 100:
-                new_iva = float(input("[Invalid IVA. Try again.]"))
+                new_iva = float(input("[Invalid IVA. Try again]"))
             iva = new_iva
         case "2":
             print(f"Current exchange rate: (BsS.{exchange_rate})")
@@ -199,11 +186,11 @@ def modify_settings() -> None:
         case "3":
             print("[Exiting...]")
         case _:
-            print("[Invalid option.]")
+            print("[Invalid option]")
 
 
 def main():
-    clear_scr()
+    utils.clear_scr()
     flag: bool = True
     option_str: str = dedent(
         """
@@ -220,32 +207,32 @@ def main():
     while flag:
         print("=== Main Menu =======================", end="")
         option: str = input(option_str)
-        clear_scr()
+        utils.clear_scr()
         match option:
             case "1":
                 add_products()
-                wait()
+                utils.wait()
             case "2":
                 modify_products()
-                wait()
+                utils.wait()
             case "3":
                 list_products()
-                wait()
+                utils.wait()
             case "4":
                 show_statistics()
-                wait()
+                utils.wait()
             case "5":
                 delete_product()
-                wait()
+                utils.wait()
             case "6":
                 modify_settings()
-                wait()
+                utils.wait()
             case "7":
                 print("Bye!")
                 flag = False
             case _:
-                print("[Invalid option. Try again.]")
-                wait()
+                print("[Invalid option. Try again]")
+                utils.wait()
 
 
 if __name__ == "__main__":

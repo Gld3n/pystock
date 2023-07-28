@@ -1,4 +1,11 @@
 from pydantic import BaseModel
+from enum import Enum
+
+
+class Category(Enum):
+    FOOD = "food"
+    TOOL = "tool"
+    FURNITURE = "furniture"
 
 
 class Product(BaseModel):
@@ -6,6 +13,7 @@ class Product(BaseModel):
     price: float
     quantity: int | None = None
     discount: int | None = None
+    category: Category | None = None
 
     class Config:
         schema_extra = {
@@ -15,6 +23,7 @@ class Product(BaseModel):
                     "price": 1.5,
                     "discount": 0,
                     "quantity": 10,
+                    "category": "food",
                 }
             ]
         }

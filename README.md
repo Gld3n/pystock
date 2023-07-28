@@ -1,8 +1,8 @@
 # pystock
 
-## Inventory CLI App with **FastAPI**
+## Inventory CLI App with **Python**
 
-An _Inventory Management System_ CLI app built with **Python** and **FastAPI** to practice  
+An _Inventory Management System_ CLI app built with **Python** and **Pydantic** to practice  
  and reinforce knowledge in these technologies. The proposed project is an University  
  assignment. The original project was built using **C++**. This is a Python version of it, but different.
 
